@@ -43,16 +43,10 @@ func WithMaxIdleConn(maxIdleConn int) Option {
 	}
 }
 
-func newOptions(opts ...Option) Options {
-	options := Options{
-		maxIdleConn:              10,
-		maxOpenConn:              10,
-		slowThresholdMillisecond: 0,
+func WithMaxOpenConn(maxOpenConn int) Option {
+	return func(o *Options) {
+		o.maxOpenConn = maxOpenConn
 	}
-	for _, opt := range opts {
-		opt(&options)
-	}
-	return options
 }
 
 func Init(opts ...Option) {

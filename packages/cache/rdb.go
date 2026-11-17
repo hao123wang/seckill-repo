@@ -8,8 +8,7 @@ import (
 )
 
 var (
-	client    = &Client{}
-	redisConn *redis.Client
+	rdb *redis.Client
 )
 
 type Client struct {
@@ -56,27 +55,27 @@ func Init(opts ...Option) {
 }
 
 func newRedisConn(options *Options) {
-	redisConn = redis.NewClient(&redis.Options{
+	rdb = redis.NewClient(&redis.Options{
 		Addr:         options.addr,
 		ReadTimeout:  options.readTimeout,
 		WriteTimeout: options.writeTimeout,
 	})
-	if redisConn == nil {
+	if rdb == nil {
 		panic("failed to call redis.NewClient")
 	}
-	_, err := redisConn.Ping(context.Background()).Result()
+	_, err := rdb.Ping(context.Background()).Result()
 	if err != nil {
 		panic("Failed to ping redis")
 	}
 }
 
 func (client *Client) Close() {
-	if redisConn != nil {
-		redisConn.Close()
+	if rdb != nil {
+		rdb.Close()
 	}
 }
 
 // GetRedisCli 获取数据库连接
-func GetRedisCli() *Client {
-	return client
+func GetRedisCli() *redis.Client {
+	return rdb
 }

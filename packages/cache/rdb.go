@@ -11,9 +11,6 @@ var (
 	rdb *redis.Client
 )
 
-type Client struct {
-}
-
 type Options struct {
 	addr         string // 地址，IP:PORT
 	readTimeout  time.Duration
@@ -69,7 +66,7 @@ func newRedisConn(options *Options) {
 	}
 }
 
-func (client *Client) Close() {
+func Close() {
 	if rdb != nil {
 		rdb.Close()
 	}

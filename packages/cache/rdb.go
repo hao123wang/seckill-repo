@@ -14,6 +14,7 @@ var (
 
 type Options struct {
 	addr         string // 地址，IP:PORT
+	password     string
 	readTimeout  time.Duration
 	writeTimeout time.Duration
 }
@@ -23,6 +24,12 @@ type Option func(*Options)
 func WithAddr(addr string) Option {
 	return func(o *Options) {
 		o.addr = addr
+	}
+}
+
+func WithPassword(pwd string) Option {
+	return func(o *Options) {
+		o.password = pwd
 	}
 }
 
@@ -42,8 +49,9 @@ func WithWriteTimeout(writeTimeout time.Duration) Option {
 func Init(opts ...Option) {
 	options := &Options{
 		addr:         "127.0.0.1:6379",
-		readTimeout:  10,
-		writeTimeout: 10,
+		password:     "123456",
+		readTimeout:  10 * time.Second,
+		writeTimeout: 10 * time.Second,
 	}
 	for _, opt := range opts {
 		opt(options)
@@ -55,6 +63,7 @@ func Init(opts ...Option) {
 func newRedisConn(options *Options) {
 	rdb = redis.NewClient(&redis.Options{
 		Addr:         options.addr,
+		Password:     options.password,
 		ReadTimeout:  options.readTimeout,
 		WriteTimeout: options.writeTimeout,
 	})

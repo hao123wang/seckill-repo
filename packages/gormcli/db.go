@@ -66,7 +66,6 @@ func Init(opts ...Option) {
 
 func newDB(options *Options) {
 	var err error
-	fmt.Println("----------------dsn---------", options.source)
 	db, err = gorm.Open(mysql.Open(options.source), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Warn),
 	})
@@ -77,7 +76,7 @@ func newDB(options *Options) {
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		panic(fmt.Sprintf("fetch gormCli connection err:", err))
+		panic(fmt.Sprintf("fetch gormCli connection err: %v", err))
 	}
 
 	sqlDB.SetMaxIdleConns(options.maxIdleConn) // 设置最大空闲连接

@@ -26,7 +26,8 @@ go.work
 go.work.sum
 
 # env file
-.env
+# 忽略所有子目录里的.env文件
+**/.env
 
 # Editor/IDE
 # .idea/

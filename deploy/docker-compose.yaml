@@ -1,0 +1,79 @@
+services:
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.4
+    container_name: seckill-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${KRATOS_DB_PASSWORD:?KRATOS_DB_PASSWORD must be set}
+      MYSQL_DATABASE: ${KRATOS_USER_SRV_DB_NAME:?KRATOS_USER_SRV_DB_NAME must be set}
+      TZ: Asia/Shanghai
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # - ./mysql/init:/docker-entrypoint-initdb.d 用于启动容器时执行脚本
+    networks:
+      - seckill-network
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$KRATOS_DB_PASSWORD --silent"] 
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # Redis 缓存
+  redis:
+    image: redis:8.4
+    container_name: seckill-redis
+    restart: unless-stopped
+    # command: redis-server --appendonly yes
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - seckill-network
+    healthcheck:
+      test: 
+        [
+          "CMD-SHELL",
+          "redis-cli -a \"$${KRATOS_REDIS_PASSWORD}\" ping | grep -q PONG"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Go 用户微服务
+  user_srv:
+    build:
+      context: ../user-srv
+      dockerfile: ./Dockerfile
+    image: seckill-user-srv:v1.0
+    container_name: seckill-user-srv
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8668:8668"
+    environment:
+      KRATOS_DB_PASSWORD: ${KRATOS_DB_PASSWORD}
+      KRATOS_USER_SRV_DB_NAME: ${KRATOS_USER_SRV_DB_NAME}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - seckill-network
+
+# 自定义网络
+networks:
+  seckill-network:
+    driver: bridge
+
+# 数据持久化
+volumes:
+  mysql_data:
+    name: seckill_mysql_data
+  redis_data:
+    name: seckill_redis_data

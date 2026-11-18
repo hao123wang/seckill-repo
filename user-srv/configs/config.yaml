@@ -1,0 +1,21 @@
+server:
+  http:
+    addr: 0.0.0.0:8668
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:8669
+    timeout: 1s
+data:
+  database:
+    addr: mysql:3306
+    user: root
+    password: ${DB_PASSWORD}
+    dbname: ${USER_SRV_DB_NAME}
+    debug: true
+    max_idle_conn: 20
+    max_open_conn: 100
+  redis:
+    addr: redis:6379
+    password: ${REDIS_PASSWORD}
+    read_timeout: 2s
+    write_timeout: 2s

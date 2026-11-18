@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -57,12 +58,11 @@ func newRedisConn(options *Options) {
 		ReadTimeout:  options.readTimeout,
 		WriteTimeout: options.writeTimeout,
 	})
-	if rdb == nil {
-		panic("failed to call redis.NewClient")
-	}
+
 	_, err := rdb.Ping(context.Background()).Result()
 	if err != nil {
-		panic("Failed to ping redis")
+		rdb.Close()
+		panic(fmt.Sprintf("Failed to ping redis, err: %v", err))
 	}
 }
 

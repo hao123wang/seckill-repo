@@ -2,6 +2,7 @@ package gormcli
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"gorm.io/driver/mysql"
@@ -65,17 +66,18 @@ func Init(opts ...Option) {
 
 func newDB(options *Options) {
 	var err error
+	fmt.Println("----------------dsn---------", options.source)
 	db, err = gorm.Open(mysql.Open(options.source), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Warn),
 	})
 
 	if err != nil {
-		panic("failed to connect database")
+		panic(fmt.Sprintf("failed to connect database, err: %v", err))
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		panic("fetch gormCli connection err:" + err.Error())
+		panic(fmt.Sprintf("fetch gormCli connection err:", err))
 	}
 
 	sqlDB.SetMaxIdleConns(options.maxIdleConn) // 设置最大空闲连接
